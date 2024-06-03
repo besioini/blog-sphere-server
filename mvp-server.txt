@@ -1,0 +1,100 @@
+
+
+Phase 1: User Authentication and Profile Management
+    Features
+        User registration, login, and profile management.
+        JWT for authentication.
+        Password hashing for security.
+    
+    Models
+        User: Contains user credentials (email, password) and profile details (username, bio, etc.).
+    
+    Endpoints
+        POST /api/users/register: Register a new user.
+        POST /api/users/login: Authenticate a user and return a JWT.
+        GET /api/users/profile: Retrieve the authenticated user's profile.
+        PUT /api/users/profile: Update the authenticated user's profile.
+    
+    Tests
+        Unit tests for each endpoint to check successful and failed operations.
+        Integration tests to verify the complete flow from registering to profile updates.
+
+    BDD
+        Scenario: Successfully registering a new user
+            GIVEN the client has filled out the registration form with a username, email, and password
+            WHEN they submit the form to the server
+            THEN the server should create a new user
+            AND respond with a 201 status code and a JWT
+
+        Feature: User Login
+        Scenario: Successfully logging in a user
+            GIVEN a user is already registered and their credentials are stored in the database
+            WHEN they submit their login credentials
+            THEN the server should verify the credentials
+            AND respond with a JWT token
+
+Phase 2: Content Creation, Browsing, Engagement and landing page
+    
+    Features
+        Users can create, view, edit, and delete posts.
+        Users can comment on posts, reply to comments, and manage (edit or delete) their comments.
+        Users can like or dislike both posts and comments.
+        Engagement tracking through likes and dislikes for both posts and comments. 
+
+    Models
+        Post: Enhanced to include attributes for tracking likes and dislikes, author, content, and metadata such as timestamps.
+        Comment: Enhanced to include attributes for tracking likes and dislikes, support for nested comments, author, and metadata such as timestamps.
+    
+    Endpoints
+        Posts
+            POST /api/posts: Submit a new post.
+            GET /api/posts: Retrieve posts tailored to the authenticated user.
+            GET /api/posts/:id: Get detailed information for a specific post.
+            PUT /api/posts/:id: Edit a specific post.
+            DELETE /api/posts/:id: Delete a specific post.
+            POST /api/posts/:id/like: Like a post.
+            POST /api/posts/:id/dislike: Dislike a post.
+        Comments
+            POST /api/posts/:id/comments: Add a comment to a post.
+            PUT /api/comments/:id: Edit a specific comment.
+            DELETE /api/comments/:id: Delete a specific comment.
+            POST /api/comments/:id/like: Like a comment.
+            POST /api/comments/:id/dislike: Dislike a comment.
+
+    Testing
+        Unit and integration tests for CRUD operations on posts and comments.
+        Tests for liking and disliking posts and comments.
+        Ensure proper authorization checks for editing and deleting posts.
+    
+    BDD
+        Scenario: User likes a post
+            GIVEN the user is logged in 
+            AND views a post
+            WHEN they click the like button on the post
+            THEN the server should record the like
+            AND increase the post's like count by one
+
+        Scenario: User dislikes a comment
+            GIVEN the user is logged in AND reads a comment on a post
+            WHEN they click the dislike button on the comment
+            THEN the server should record the dislike
+            AND increase the comment's dislike count by one
+
+        Scenario: User comments on a post
+            GIVEN the user is logged in AND viewing a post they want to comment on
+            WHEN they submit a comment
+            THEN the server should add the comment to the post
+            AND respond with a 201 status code and the comment details
+
+        Scenario: User edits their comment
+            GIVEN the user is logged in AND has previously commented on a post
+            WHEN they choose to edit their comment and submit the changes
+            THEN the server should update the comment with the new content
+            AND respond with a confirmation of the update
+
+        Scenario: User deletes their comment
+            GIVEN the user is logged in AND has previously commented on a post
+            WHEN they decide to delete their comment
+            THEN the server should remove the comment from the post
+            AND notify the user that the comment has been deleted
+                

@@ -9,7 +9,7 @@ const createPost = async (req, res) => {
             title, body, images, author
         })
         await post.save();
-        console.log('Post creted successfully');
+        console.log('Post created successfully');
         sendResponse(res, 201, post);
     } catch (err) {
         console.error('Error creating post:', err.message);
@@ -52,7 +52,7 @@ const updatePost = async (req, res) => {
     try {
         const post = await Post.findById(req.params.id);
         if (!post) {
-            console.log('Post not found');
+            console.error('Post not found');
             return sendError(res, 404, 'Post not found');
         }
 
@@ -80,7 +80,7 @@ const deletePost = async (req, res) => {
     try {
         const post = await Post.findById(req.params.id);
         if (!post) {
-            console.log('Post not found');
+            console.error('Post not found');
             return sendError(res, 404, 'Post not found');
         }
 
@@ -88,6 +88,8 @@ const deletePost = async (req, res) => {
             console.log('Unauthorized to update post');
             return sendError(res, 401, 'Unauthorized to update post');
         }  
+        
+
         
         await post.deleteOne();
         console.log('Post deleted successfully');
@@ -98,10 +100,61 @@ const deletePost = async (req, res) => {
     }
 }
 
+const likePost = async(req, res) => {
+    const postId = req.params.id;
+    const userId = req.user._id;
+    try {
+        const post = await Post.findById(postId);
+        if (!post) {
+            console.error('Post not found');
+            return sendError(res, 404, 'Post not found');
+        }
+        if (post.likes.includes(userId)) {
+            post.likes.pull(userId);
+        } else {
+            post.likes.addToSet(userId);
+            post.dislikes.pull(userId);
+        }
+
+        await post.save();
+        sendResponse(res, 200, post);
+    } catch (err) {
+        console.error('Error toggling like on post', err.message);
+        sendError(res, 400, err.message);
+    }
+};
+
+
+const dislikePost = async (req, res) => {
+    const postId = req.params.id;
+    const userId = req.user._id;
+    try {
+        const post = await Post.findById(postId);
+        if (!post) {
+            console.error('Post not found')
+            return sendError(res, 400, 'Post not found');
+        }
+        if (post.dislikes.includes(userId)) {
+            post.dislikes.pull(userId);
+        } else {
+            post.dislikes.addToSet(userId);
+            post.likes.pull(userId);
+        };
+
+        await post.save();
+        sendResponse(res, 200, post);
+    } catch (err) {
+        console.error('Error toggling dislike on post', err.message);
+        sendError(res, 400, err.message);
+    }
+}
+
 module.exports = {
     createPost,
     updatePost,
     getPost,
     getAllPosts,
-    deletePost
+    deletePost,
+    likePost,
+    dislikePost
 }
